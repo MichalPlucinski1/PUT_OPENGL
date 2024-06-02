@@ -34,6 +34,7 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "shaderprogram.h"
 #include "MyModels.h"
 #include "Camera.h"
+#include "Plane.h"
 
 using namespace std;
 
@@ -42,11 +43,11 @@ Sky* niebo;
 Lamp* lamp1, * lamp2;
 Floor* podloga;
 ShaderProgram* sp, *spniebo, * splamp;
-Obstacle* airplane;
 ObstacleVector obstacleV;
 ObstacleVector obstacleV2;
 ObstacleVector obstacleV3;
 glm::vec3 cubePos(0, 0, 3);
+Plane* plane;
 
 double lastx = 999999, lasty = 999999;
 float speed_x = 0;
@@ -180,6 +181,7 @@ GLuint samolot;
 GLuint yellow;
 GLuint grey;
 GLuint red;
+GLuint texPlane;
 
 GLuint colors[4];
 
@@ -247,6 +249,20 @@ void key_callback(
 		if (key == GLFW_KEY_S) speed_y = 0;
 		if (key == GLFW_KEY_A) speed_m = 0;
 		if (key == GLFW_KEY_D) speed_m = 0;
+		if (key == GLFW_KEY_F) {
+			if (plane->coll()) {
+				switch (kamera->getMode()) {
+				case 0:
+					kamera->changeMode();
+					plane->changeMode();
+					break;
+				case 1:
+					kamera->changeMode();
+					plane->changeMode();
+					break;
+				}
+			}
+		}
 
 		//legacy code
 		if (key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) {
@@ -258,6 +274,41 @@ void key_callback(
 	}
 }
 
+void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+	if (lastx == 999999 && lasty == 999999) {
+		kamera->rotateKier(0, 0);
+		lastx = xpos;
+		lasty = ypos;
+		return;
+	}
+	float xoffset = lastx - xpos;
+	float yoffset = ypos - lasty;
+	lastx = xpos;
+	lasty = ypos;
+
+	const float sensitivity = 0.05f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+	if (kamera->getVert() >= PI / 2 && yoffset > 0) {
+		yoffset = 0;
+	}
+	if (kamera->getVert() <= -PI / 2 && yoffset < 0) {
+		yoffset = 0;
+	}
+	if (xoffset != 0) {
+		if (xoffset > 0) {
+			plane->setAnimeAng(-PI / 30);
+		}
+		else {
+			plane->setAnimeAng(PI / 30);
+		}
+	}
+	else {
+		plane->setAnimeAng(0);
+	}
+	kamera->rotateKier(glm::radians(xoffset), glm::radians(yoffset));
+
+}
 
 
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -273,9 +324,12 @@ void initOpenGLProgram(GLFWwindow* window) {
 	initShaders();
 	//************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
 	glClearColor(0.53, 0.80, 0.92, 1); //Ustaw kolor czyszczenia bufora kolorów
-	glEnable(GL_DEPTH_TEST); //Włącz test głębokości na pikselach
+	glEnable(GL_DEPTH_TEST);
 	glfwSetWindowSizeCallback(window, windowResizeCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	//glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 
 	sp = new ShaderProgram("v_obstacle.glsl", NULL, "f_obstacle.glsl");
@@ -299,6 +353,8 @@ void initOpenGLProgram(GLFWwindow* window) {
 	red = readTexture("czerwony.png");
 
 	tex = readTexture("stone-wall.png");
+
+	texPlane = readTexture("plane.png");
 
 
 	colors[0] = red;
@@ -345,11 +401,12 @@ void initOpenGLProgram(GLFWwindow* window) {
 	obstacleV3.add(glm::vec3(-10, 1, 15), 0);
 	*/
 
-	airplane = new Obstacle(temp_vertices, temp_normals,temp_uvs, glm::vec3(10, 1, 10), 0.0f);
+	loadOBJ("plane.obj", temp_vertices, temp_uvs, temp_normals);
+	plane = new Plane(temp_vertices, temp_normals, temp_uvs, kamera, glm::vec3(0, 0, 7) , new PlaneCollision);
 
 
 
-
+	kamera->setRob(plane->PosPtr());
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -416,7 +473,7 @@ void drawScene(GLFWwindow* window, float angle_x, float angle_y) {
 
 	niebo->draw(spniebo, P, V, skyy);
 	podloga->draw(sp, P, V, pustynia, lamp1->getPos(), lamp2->getPos());
-	airplane->draw(sp, P, V, red, glm::vec4(lamp1->getPos(), 1), glm::vec4(lamp2->getPos(), 0.8));
+	plane->draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
 
 	lamp1->draw(splamp, P, V, lampka);
 	lamp2->draw(splamp, P, V, lampka);

@@ -47,3 +47,16 @@ void Camera::rotateKier(float angx, float angy) {
 	kierunek.y = tmp.y;
 	kierunek.z = tmp.z;
 }
+
+void Camera::changeMode() {
+	switch (mode) {
+	case 0:
+		mode = 1;
+		position = *robpos + glm::vec3(0, 1.5, 0);
+		break;
+	case 1:
+		mode = 0;
+		position = *robpos + glm::vec3(-1, 0, 0);
+		break;
+	}
+}
