@@ -26,5 +26,22 @@ public:
 	void collAct(Camera* c);
 };
 
+class ObstacleCollision {
+public:
+	glm::vec3 leftdown, rightup, sr;
+	ObstacleCollision(glm::vec3 a, glm::vec3 b, glm::vec3 s) {
+		leftdown = a;
+		rightup = b;
+		sr = s;
+	}
+	glm::vec3 collAct(glm::vec3 pos) {
+		if (dist(pos, sr) < 4) {
+			return pos + glm::normalize(pos + glm::vec3(0, -0.5, 0) - sr) * (4 - dist(pos, sr));
+		}
+		else return pos;
+
+	}
+};
+
 
 

@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 
-
+float PI = 3.141592;
 
 
 std::vector<glm::vec4> Model::getVert() {
@@ -36,8 +36,9 @@ void Sky::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex) {
 	glm::mat4 M = glm::mat4(1.0f);
 
 	M = glm::translate(M, pos);
+	M = glm::translate(M, glm::vec3(0, -1, 0));
 	M = glm::scale(M, glm::vec3(100, 50, 100));
-	M = glm::scale(M, glm::vec3(1.1, 1.1, 1.1));
+	M = glm::scale(M, glm::vec3(1.6, 1.6, 1.6));
 	glUniformMatrix4fv(sp->u("P"), 1, false, glm::value_ptr(P));
 	glUniformMatrix4fv(sp->u("V"), 1, false, glm::value_ptr(V));
 	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(M));
@@ -60,7 +61,8 @@ void Sky::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex) {
 void Floor::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec3 lp1, glm::vec3 lp2) {
 	sp->use();
 	glm::mat4 M = glm::mat4(1.0f);
-	M = glm::scale(M, glm::vec3(200, 1, 200));
+	M = glm::translate(M, glm::vec3(0, 0, 0));
+	M = glm::scale(M, glm::vec3(300, 1, 300));
 
 	glUniform4fv(sp->u("lp1"), 1, glm::value_ptr(lp1));
 	glUniform4fv(sp->u("lp2"), 1, glm::value_ptr(lp2));
@@ -115,4 +117,63 @@ void Lamp::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+}
+
+
+
+void Obstacle::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec4 lp1, glm::vec4 lp2) {
+	sp->use();
+	glm::mat4 M = glm::mat4(1.0f);
+	M = glm::scale(M, glm::vec3(3.0, 3.0, 3.0));
+
+	M = glm::translate(M, pos + glm::vec3(0, -1.9, 0));
+	M = glm::rotate(M, PI / 2 + angle, glm::vec3(0, 1, 0));
+	glUniform4fv(sp->u("lp1"), 1, glm::value_ptr(lp1));
+	glUniform4fv(sp->u("lp2"), 1, glm::value_ptr(lp2));
+	glUniformMatrix4fv(sp->u("P"), 1, false, glm::value_ptr(P));
+	glUniformMatrix4fv(sp->u("V"), 1, false, glm::value_ptr(V));
+	glUniformMatrix4fv(sp->u("M"), 1, false, glm::value_ptr(M));
+	glEnableVertexAttribArray(sp->a("texCoord0"));
+	glVertexAttribPointer(sp->a("texCoord0"), 2, GL_FLOAT, false, 0, &uvs[0]);
+	glEnableVertexAttribArray(sp->a("vertex"));
+	glVertexAttribPointer(sp->a("vertex"), 4, GL_FLOAT, false, 0, &vertices[0]);
+	glEnableVertexAttribArray(sp->a("normal"));
+	glVertexAttribPointer(sp->a("normal"), 4, GL_FLOAT, false, 0, &normals[0]);
+	glUniform1i(sp->u("textureMap0"), 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+}
+
+
+
+void ObstacleVector::add(glm::vec3 pos, float ang) {
+	vector.push_back(new Obstacle(vertices, normals, uvs, pos, ang));
+}
+
+int ObstacleVector::size() {
+	return vector.size();
+}
+
+Obstacle* ObstacleVector::operator[] (int i) {
+	return vector[i];
+}
+
+void ObstacleVector::set(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vector<glm::vec2> uv) {
+	vertices = vert;
+	normals = norm;
+	uvs = uv;
+}
+
+void ObstacleVector::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex[], glm::vec3 lp1, glm::vec3 lp2) {
+
+	int r = rand() % 4;
+	GLuint texture = tex[0];
+
+	
+
+	for (int i = 0; i < vector.size(); i++) {
+		vector[i]->draw(sp, P, V, texture, glm::vec4(lp1, 1), glm::vec4(lp2, 1));
+	}
 }

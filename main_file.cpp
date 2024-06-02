@@ -42,6 +42,10 @@ Sky* niebo;
 Lamp* lamp1, * lamp2;
 Floor* podloga;
 ShaderProgram* sp, *spniebo, * splamp;
+Obstacle* airplane;
+ObstacleVector obstacleV;
+ObstacleVector obstacleV2;
+ObstacleVector obstacleV3;
 glm::vec3 cubePos(0, 0, 3);
 
 double lastx = 999999, lasty = 999999;
@@ -50,6 +54,9 @@ float speed_y = 0;
 float speed_z = 0;
 float speed_m = 0;
 float aspectRatio = 1;
+
+
+
 
 
 bool loadOBJ(const char* path, std::vector < glm::vec4 >& out_vertices, std::vector < glm::vec2 >& out_uvs, std::vector < glm::vec4 >& out_normals)
@@ -165,10 +172,29 @@ GLuint readTexture(const char* filename) {
 
 
 GLuint tex;
-GLuint tex0;
-GLuint tex3;
+GLuint pustynia;
+GLuint skyy;
 GLuint tex4;
-GLuint tex6;
+GLuint lampka;
+GLuint samolot;
+GLuint yellow;
+GLuint grey;
+GLuint red;
+
+GLuint colors[4];
+
+GLuint randColor() {
+	srand(time(NULL));
+	int r = rand() % 4;
+	switch (r) {
+	case 0:
+		return red;
+	case 1:
+		return yellow;
+	case 2:
+		return grey;
+	}
+}
 
 
 //Procedura obsługi błędów
@@ -263,12 +289,25 @@ void initOpenGLProgram(GLFWwindow* window) {
 	std::vector< glm::vec2 > temp_uvs2;
 	std::vector< glm::vec4 > temp_normals2;
 
-	tex0 = readTexture("pustynia.png");
-	tex3 = readTexture("skyy.png");
+	pustynia = readTexture("pustynia.png");
+	samolot = readTexture("airplane.png");
+	skyy = readTexture("skyy.png");
 	tex4 = readTexture("skyyref.png");
-	tex6 = readTexture("light.png");
+	lampka = readTexture("light.png");
+	yellow = readTexture("zolty.png");
+	grey = readTexture("szary.png");
+	red = readTexture("czerwony.png");
 
 	tex = readTexture("stone-wall.png");
+
+
+	colors[0] = red;
+	colors[1] = yellow;
+	colors[2] = grey;
+	colors[3] = tex;
+
+
+
 
 	loadOBJ("square.obj", temp_vertices, temp_uvs, temp_normals);
 	cout << "loaded square";
@@ -283,6 +322,32 @@ void initOpenGLProgram(GLFWwindow* window) {
 
 	lamp1 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(1, 20, 1));
 	lamp2 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(15, 5, 20));
+
+
+	/*
+	loadOBJ("skyscrapers.obj", temp_vertices, temp_uvs, temp_normals);
+	obstacleV.set(temp_vertices, temp_normals, temp_uvs);
+	obstacleV.add(glm::vec3(-5, 1, 0), 0);
+	obstacleV.add(glm::vec3(10, 1, 10), 0);
+	obstacleV.add(glm::vec3(15, 1, -5), 0);
+
+	
+	loadOBJ("skyscrapers3.obj", temp_vertices, temp_uvs, temp_normals);
+	obstacleV2.set(temp_vertices, temp_normals, temp_uvs);
+	obstacleV2.add(glm::vec3(-10, 1, 10), 0);
+	obstacleV2.add(glm::vec3(20, 1, 10), 0);
+	obstacleV2.add(glm::vec3(-5, 1, 15), 0);
+	*/
+	loadOBJ("47.obj", temp_vertices, temp_uvs, temp_normals);
+	obstacleV3.set(temp_vertices, temp_normals, temp_uvs);
+	obstacleV3.add(glm::vec3(-5, 1, -5), 0);
+	obstacleV3.add(glm::vec3(-20, 1, -7), 0);
+	obstacleV3.add(glm::vec3(-10, 1, 15), 0);
+	
+
+	airplane = new Obstacle(temp_vertices, temp_normals,temp_uvs, glm::vec3(10, 1, 10), 0.0f);
+
+
 
 
 
@@ -349,11 +414,21 @@ void drawScene(GLFWwindow* window, float angle_x, float angle_y) {
 	glm::mat4 M = glm::mat4(1.0f);
 	M = glm::translate(M, cubePos);
 
-	niebo->draw(spniebo, P, V, tex3);
-	podloga->draw(sp, P, V, tex0, lamp1->getPos(), lamp2->getPos());
+	niebo->draw(spniebo, P, V, skyy);
+	podloga->draw(sp, P, V, pustynia, lamp1->getPos(), lamp2->getPos());
+	airplane->draw(sp, P, V, red, glm::vec4(lamp1->getPos(), 1), glm::vec4(lamp2->getPos(), 0.8));
 
-	lamp1->draw(splamp, P, V, tex6);
-	lamp2->draw(splamp, P, V, tex6);
+	lamp1->draw(splamp, P, V, lampka);
+	lamp2->draw(splamp, P, V, lampka);
+	obstacleV.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
+	obstacleV2.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
+	obstacleV3.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
+
+
+
+	
+	
+	//obstacleV.draw(sp, P, V, samolot, lamp1->getPos(), lamp2->getPos());
 
 	glDisableVertexAttribArray(sp->a("normal"));
 	glDisableVertexAttribArray(sp->a("vertex"));
