@@ -324,7 +324,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 	lamp2 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(15, 5, 20));
 
 
-	/*
+	
 	loadOBJ("skyscrapers.obj", temp_vertices, temp_uvs, temp_normals);
 	obstacleV.set(temp_vertices, temp_normals, temp_uvs);
 	obstacleV.add(glm::vec3(-5, 1, 0), 0);
@@ -337,13 +337,13 @@ void initOpenGLProgram(GLFWwindow* window) {
 	obstacleV2.add(glm::vec3(-10, 1, 10), 0);
 	obstacleV2.add(glm::vec3(20, 1, 10), 0);
 	obstacleV2.add(glm::vec3(-5, 1, 15), 0);
-	*/
+	/*
 	loadOBJ("47.obj", temp_vertices, temp_uvs, temp_normals);
 	obstacleV3.set(temp_vertices, temp_normals, temp_uvs);
 	obstacleV3.add(glm::vec3(-5, 1, -5), 0);
 	obstacleV3.add(glm::vec3(-20, 1, -7), 0);
 	obstacleV3.add(glm::vec3(-10, 1, 15), 0);
-	
+	*/
 
 	airplane = new Obstacle(temp_vertices, temp_normals,temp_uvs, glm::vec3(10, 1, 10), 0.0f);
 
@@ -420,9 +420,9 @@ void drawScene(GLFWwindow* window, float angle_x, float angle_y) {
 
 	lamp1->draw(splamp, P, V, lampka);
 	lamp2->draw(splamp, P, V, lampka);
-	obstacleV.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
-	obstacleV2.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
-	obstacleV3.draw(sp, P, V, colors, lamp1->getPos(), lamp2->getPos());
+	obstacleV.draw(sp, P, V, yellow, lamp1->getPos(), lamp2->getPos());
+	obstacleV2.draw(sp, P, V, grey, lamp1->getPos(), lamp2->getPos());
+	obstacleV3.draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
 
 
 

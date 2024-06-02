@@ -43,5 +43,10 @@ public:
 	}
 };
 
+class PlaneCollision {
+public:
+	bool collAct(Camera* c, glm::vec3 pos);
+};
+
 
 

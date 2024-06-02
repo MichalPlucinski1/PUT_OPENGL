@@ -97,11 +97,25 @@ public:
 	void set(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vector<glm::vec2> uv);
 	int size();
 	Obstacle* operator[] (int i);
-	void draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex[], glm::vec3 lp1, glm::vec3 lp2);
+	void draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);
 	void coll(Camera* cam) {
 		for (int i = 0; i < vector.size(); i++) {
 			cam->setPos(vector[i]->colli(cam->getPos()));
 		}
 	}
 
+};
+
+
+
+class PlaneModel : public Model {
+private:
+
+
+public:
+	PlaneModel(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vector<glm::vec2> uv) : Model(vert, norm, uv) {
+
+	}
+	glm::mat4 draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, glm::vec3 pos, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);//noramlniue rysuje segment i zwraca macierz przekszta³ceñ
+	void draw2(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, glm::mat4 M, glm::vec3 przes, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);//rysuje segment w oparciu o poprzedni narysowany, czly macierz M, wiêc ³¹twiej siê rysuje bez transformacji pojebanych jakichœ
 };
