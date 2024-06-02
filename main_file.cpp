@@ -36,6 +36,7 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "Camera.h"
 #include "Plane.h"
 
+
 using namespace std;
 
 Camera* kamera = new Camera(glm::vec3(0, 1, 0));
@@ -50,11 +51,24 @@ glm::vec3 cubePos(0, 0, 3);
 Plane* plane;
 
 double lastx = 999999, lasty = 999999;
-float speed_x = 0;
-float speed_y = 0;
-float speed_z = 0;
+float speed_x = 0; // w bok
+float speed_y = 0; // w przod
+float speed_z = 0; // w gore
 float speed_m = 0;
+float speed_r = 0;
 float aspectRatio = 1;
+
+
+float plane_speed = 0;
+float acc = 0;
+float rotation_x = 0; 
+float rotation_y = 0;
+float rotation_z = 0;
+
+
+float angle_x = 0;
+float angle_y = 0;
+float angle_z = 0;
 
 
 
@@ -185,18 +199,6 @@ GLuint texPlane;
 
 GLuint colors[4];
 
-GLuint randColor() {
-	srand(time(NULL));
-	int r = rand() % 4;
-	switch (r) {
-	case 0:
-		return red;
-	case 1:
-		return yellow;
-	case 2:
-		return grey;
-	}
-}
 
 
 //Procedura obsługi błędów
@@ -204,11 +206,17 @@ void error_callback(int error, const char* description) {
 	fputs(description, stderr);
 }
 
-void key_callback(
-	GLFWwindow* window,	int key,	int scancode,	int action,	int mod) {
-	if (action == GLFW_PRESS) {
+void key_callback(GLFWwindow* window,	int key,	int scancode,	int action,	int mod) 
+{
+	if (action == GLFW_PRESS && !kamera->getMode()) {
 		if (key == GLFW_KEY_Q) {
-			speed_x = PI / 2;
+			if (kamera->getMode()) {
+				speed_r = PI / 4;
+			}
+			else {
+				speed_x = PI / 2;
+			}
+				
 		}
 		if (key == GLFW_KEY_E) {
 			speed_x = -PI / 2;
@@ -223,53 +231,55 @@ void key_callback(
 		}
 		if (key == GLFW_KEY_A) speed_m = 15;
 		if (key == GLFW_KEY_D) speed_m = -15;
-		//legacy
-		if (key == GLFW_KEY_LEFT) {
-			speed_y = -PI;
+		
+	}
+	if (action == GLFW_PRESS && kamera->getMode()) {
+
+		if (key == GLFW_KEY_LEFT_SHIFT) { //acc
+			acc = 0.02;
 		}
-		if (key == GLFW_KEY_RIGHT) {
-			speed_y = PI;
+		if (key == GLFW_KEY_LEFT_CONTROL) { // slowing
+			acc = -0.04;
 		}
-		if (key == GLFW_KEY_UP) {
-			speed_x = -PI;
-		}
-		if (key == GLFW_KEY_DOWN) {
-			speed_x = PI;
-		}
+		if (key == GLFW_KEY_Q) rotation_z = PI / (20 * 10);
+		if (key == GLFW_KEY_E) rotation_z = - PI / (20 * 10);
+
+		if (key == GLFW_KEY_W) rotation_y = PI / (20 * 6);
+		if (key == GLFW_KEY_S) rotation_y = - PI / (20 * 6);
+
+		if (key == GLFW_KEY_A) rotation_x = PI / (20 * 6);
+		if (key == GLFW_KEY_D) rotation_x = - PI / (20 * 6);
+
 	}
 	if (action == GLFW_RELEASE) {
 
+		if (key == GLFW_KEY_LEFT_SHIFT) { //acc
+			acc = 0;
+		}
+		if (key == GLFW_KEY_LEFT_CONTROL) { // slowing
+			acc = 0;
+		}
+
+
 		if (key == GLFW_KEY_Q) {
+			rotation_z = 0;
 			speed_x = 0;
 		}
 		if (key == GLFW_KEY_E) {
 			speed_x = 0;
+			rotation_z = 0;
 		}
-		if (key == GLFW_KEY_W) speed_y = 0;
-		if (key == GLFW_KEY_S) speed_y = 0;
-		if (key == GLFW_KEY_A) speed_m = 0;
-		if (key == GLFW_KEY_D) speed_m = 0;
+		if (key == GLFW_KEY_W) { speed_y = 0; rotation_y = 0; }
+		if (key == GLFW_KEY_S) { speed_y = 0; rotation_y = 0; }
+		if (key == GLFW_KEY_A) { speed_m = 0; rotation_x = 0;}
+		if (key == GLFW_KEY_D) { speed_m = 0; rotation_x = 0; }
 		if (key == GLFW_KEY_F) {
 			if (plane->coll()) {
-				switch (kamera->getMode()) {
-				case 0:
-					kamera->changeMode();
-					plane->changeMode();
-					break;
-				case 1:
-					kamera->changeMode();
-					plane->changeMode();
-					break;
-				}
+				kamera->changeMode();
+				plane->changeMode();
+					
+			
 			}
-		}
-
-		//legacy code
-		if (key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) {
-			speed_y = 0;
-		}
-		if (key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) {
-			speed_x = 0;
 		}
 	}
 }
@@ -366,15 +376,15 @@ void initOpenGLProgram(GLFWwindow* window) {
 
 
 	loadOBJ("square.obj", temp_vertices, temp_uvs, temp_normals);
-	cout << "loaded square";
+	std::cout << "loaded square";
 	podloga = new Floor(temp_vertices, temp_normals, temp_uvs, new FloorCollision(glm::vec3(-100, 0, -100), glm::vec3(100, 0, 100)));
 	
 	loadOBJ("kopula.obj", temp_vertices, temp_uvs, temp_normals);
-	cout << "loaded kopula";
+	std::cout << "loaded kopula";
 	niebo = new Sky(temp_vertices, temp_normals, temp_uvs);
 
 	loadOBJ("nowy.obj", temp_vertices, temp_uvs, temp_normals);
-	cout << "loaded nowy";
+	std::cout << "loaded nowy";
 
 	lamp1 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(1, 20, 1));
 	lamp2 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(15, 5, 20));
@@ -455,7 +465,7 @@ void texKostka(glm::mat4 P, glm::mat4 V, glm::mat4 M) {
 
 
 //Procedura rysująca zawartość sceny
-void drawScene(GLFWwindow* window, float angle_x, float angle_y) {
+void drawScene(GLFWwindow* window) {
 	//************Tutaj umieszczaj kod rysujący obraz******************l
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Wyczyść bufor koloru i bufor głębokości
 
@@ -473,13 +483,16 @@ void drawScene(GLFWwindow* window, float angle_x, float angle_y) {
 
 	niebo->draw(spniebo, P, V, skyy);
 	podloga->draw(sp, P, V, pustynia, lamp1->getPos(), lamp2->getPos());
-	plane->draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
+	
 
 	lamp1->draw(splamp, P, V, lampka);
 	lamp2->draw(splamp, P, V, lampka);
 	obstacleV.draw(sp, P, V, yellow, lamp1->getPos(), lamp2->getPos());
 	obstacleV2.draw(sp, P, V, grey, lamp1->getPos(), lamp2->getPos());
 	obstacleV3.draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
+
+	cout << "ACC:" << plane_speed << endl;
+	plane->draw(sp, P, V, plane_speed, angle_x, angle_y, angle_z, red, lamp1->getPos(), lamp2->getPos());
 
 
 
@@ -539,20 +552,53 @@ int main(void)
 	initOpenGLProgram(window); //Operacje inicjujące
 
 	//Główna pętla
-	float angle_x = 0; //zadeklaruj zmienną przechowującą aktualny kąt obrotu
-	float angle_y = 0; //zadeklaruj zmienną przechowującą aktualny kąt obrotu
+
 	glfwSetTime(0); //Wyzeruj licznik czasu
+	int init_mode = 0;
 	while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
 	{
 		kamera->rotateKier(speed_x * glfwGetTime(), 0); //obraca kamere o  kat odpowiedni do speeda z inputu
-		kamera->setPos(kamera->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + kamera->getPrawo() * speed_m * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
+
+		if (kamera->getMode() != init_mode && kamera->getMode() == 1) { // zmiana trybu na samolotowy
+				kamera->setPos(plane->getPos() + glm::vec3(0,0,5)); //  włącz tryb samolotowy (wsadź kamere do samolotu)		
+		}
+		init_mode = kamera->getMode();
+
+		if (!kamera->getMode()) { //jezeli poza samolotem
+			kamera->setPos(kamera->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + kamera->getPrawo() * speed_m * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
+		}
+		else {
+			angle_x += rotation_x;
+			angle_y += rotation_y;
+			angle_z += rotation_z;
+
+			if (plane_speed + acc > 5) {
+				plane_speed = 5;
+			}
+			else if (plane_speed + acc < 0) {
+				plane_speed = 0;
+			}
+			else {
+				plane_speed += acc;
+			}
+
+			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 5)); //ustawia kamere zgodnie ze speedem
+
+			/*
+			glm::vec3 init_plane = plane->getPos();
+			
+			plane->SetPos(init_plane);
+			kamera->setPos(kamera->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + kamera->getPrawo() * speed_m * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
+			*/
+		}
+
 		if (!kamera->getOnGround()) {
 			kamera->addForce(glm::vec3(0, -0.25, 0));
 		}
 		kamera->applyForce(glfwGetTime());
 		podloga->colli(kamera);
 		glfwSetTime(0); //Wyzeruj licznik czasu
-		drawScene(window, angle_x, angle_y); //Wykonaj procedurę rysującą
+		drawScene(window); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
 	}
 

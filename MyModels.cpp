@@ -183,14 +183,23 @@ void ObstacleVector::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint te
 
 
 
-glm::mat4 PlaneModel::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, glm::vec3 pos, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2) {
+glm::mat4 PlaneModel::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, float acc, float rx, float ry, float rz, glm::vec3 pos, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2) {
+	
+	speed += acc;
 	sp->use();
 	glm::mat4 M = glm::mat4(1.0f);
-
 	M = glm::translate(M, pos);
+	
 	M = glm::rotate(M, ang, glm::vec3(0, 1, 0));
 	M = glm::rotate(M, -PI/2, glm::vec3(1, 0, 0));
+	M = glm::rotate(M, rx, glm::vec3(1, 0, 0)); // rx
+	M = glm::rotate(M, ry, glm::vec3(0, 1, 0)); // ry
+	M = glm::rotate(M, rz, glm::vec3(0, 0, 1)); // rz
+	M = glm::translate(M, glm::vec3(-speed, 0, 0));
 	M = glm::scale(M, glm::vec3(0.01, 0.01, 0.01));
+	
+	std::cout << speed << std::endl;
+	
 	//M = glm::scale(M, glm::vec3(0.25, 0.25, 0.25));
 	glUniform4fv(sp->u("lp1"), 1, glm::value_ptr(lp1));
 	glUniform4fv(sp->u("lp2"), 1, glm::value_ptr(lp2));

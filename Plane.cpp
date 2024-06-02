@@ -17,16 +17,8 @@ Plane::Plane(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vect
 
 
 
-void Plane::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec3 lp1, glm::vec3 lp2) { //dopiero kiedy rysowanie jest tutaj to dziala
-	if (kameraMode == 1) {
-		pos = kamera->getPos() + glm::vec3(0, 3, 0);
-		glm::mat4 M = planeModel->draw(sp, P, V, pos, kamera->getAng() + PI / 2, tex, glm::vec4(lp1, 1), glm::vec4(lp2, 1));
-
-	}
-	else {
-		glm::mat4 M = planeModel->draw(sp, P, V, pos, 0, tex, glm::vec4(lp1, 1), glm::vec4(lp2, 1));
-
-	}
+void Plane::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, float speed, float rx, float ry, float rz, GLuint tex, glm::vec3 lp1, glm::vec3 lp2) { //dopiero kiedy rysowanie jest tutaj to dziala
+		glm::mat4 M = planeModel->draw(sp, P, V,speed, rx, ry, rz, pos, 0, tex, glm::vec4(lp1, 1), glm::vec4(lp2, 1));
 }
 
 void Plane::changeMode() {

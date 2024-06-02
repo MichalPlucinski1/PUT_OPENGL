@@ -19,13 +19,16 @@ private:
 	PlaneCollision* colli;
 
 
+
 public:
 	Plane(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vector<glm::vec2> uv, Camera* kam, glm::vec3 posi, PlaneCollision* pc);  //konstruktor
 	~Plane() {
 		delete colli;
 		delete planeModel;
 	}
-	void draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);  //dopiero kiedy rysowanie jest tutaj to dziala
+	void draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V,
+		float speed, float rx, float ry, float rz,
+		GLuint tex, glm::vec3 lp1, glm::vec3 lp2);  //dopiero kiedy rysowanie jest tutaj to dziala
 	void changeMode();
 	glm::vec3 getPos();
 	void SetPos(glm::vec3 v);

@@ -116,5 +116,6 @@ public:
 	PlaneModel(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vector<glm::vec2> uv) : Model(vert, norm, uv) {
 
 	}
-	glm::mat4 draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, glm::vec3 pos, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);//noramlniue rysuje segment i zwraca macierz przekszta³ceñ
+	float speed = 0;
+	glm::mat4 draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, float speed, float rx, float ry, float rz, glm::vec3 pos, float ang, GLuint tex, glm::vec3 lp1, glm::vec3 lp2);//noramlniue rysuje segment i zwraca macierz przekszta³ceñ
 };
