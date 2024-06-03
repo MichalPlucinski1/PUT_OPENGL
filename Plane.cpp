@@ -13,6 +13,13 @@ Plane::Plane(std::vector<glm::vec4> vert, std::vector<glm::vec4> norm, std::vect
 	pos = posi;
 	animeang = 0;
 	colli = pc;
+	rx = 0;
+	ry = 0;
+	rz = 0;
+
+	tmpx = glm::vec3(1, 0, 0);
+	tmpy = glm::vec3(0, 1, 0);
+	tmpz = glm::vec3(0, 0, 1);
 }
 
 
@@ -37,6 +44,37 @@ glm::vec3 Plane::getPos() {
 }
 void Plane::SetPos(glm::vec3 v) {
 	pos = v;
+}
+
+
+void Plane::outPos() {
+	std::cout << "x:" << pos.x << " y:" << pos.y << " z:" << pos.z << "\n";
+}
+
+void Plane::rotate(float ax, float ay, float az) {
+	rx += ax;
+	ry += ay;
+	rz += az;
+	glm::mat4 M = glm::mat4(1.0f);
+	M = glm::rotate(M, ax, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec4 tmp = M * glm::vec4(tmpx, 0);
+	tmpx.x = tmp.x;
+	tmpx.y = tmp.y;
+	tmpx.z = tmp.z;
+	M = glm::rotate(M, ay, tmpx);
+	tmp = M * glm::vec4(tmpy, 0);
+	tmpy.x = tmp.x;
+	tmpy.y = tmp.y;
+	tmpy.z = tmp.z;
+	M = glm::rotate(M, az, tmpz);
+	tmp = M * glm::vec4(tmpz, 0);
+
+	tmpz.x = tmp.x;
+	tmpz.y = tmp.y;
+	tmpz.z = tmp.z;
+	
+
+
 }
 
 void Plane::setAnimeAng(float a) {

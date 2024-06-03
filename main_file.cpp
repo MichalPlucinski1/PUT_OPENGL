@@ -239,7 +239,7 @@ void key_callback(GLFWwindow* window,	int key,	int scancode,	int action,	int mod
 			acc = 0.02;
 		}
 		if (key == GLFW_KEY_LEFT_CONTROL) { // slowing
-			acc = -0.04;
+			acc = -0.08;
 		}
 		if (key == GLFW_KEY_Q) rotation_z = PI / (20 * 10);
 		if (key == GLFW_KEY_E) rotation_z = - PI / (20 * 10);
@@ -278,7 +278,6 @@ void key_callback(GLFWwindow* window,	int key,	int scancode,	int action,	int mod
 				kamera->changeMode();
 				plane->changeMode();
 					
-			
 			}
 		}
 	}
@@ -435,34 +434,6 @@ void freeOpenGLProgram(GLFWwindow* window) {
 }
 
 
-void texKostka(glm::mat4 P, glm::mat4 V, glm::mat4 M) {
-
-	spTextured->use(); //Aktywuj program cieniujący
-
-	glUniformMatrix4fv(spTextured->u("P"), 1, false, glm::value_ptr(P)); //Załaduj do programu cieniującego macierz rzutowania
-	glUniformMatrix4fv(spTextured->u("V"), 1, false, glm::value_ptr(V)); //Załaduj do programu cieniującego macierz widoku
-	glUniformMatrix4fv(spTextured->u("M"), 1, false, glm::value_ptr(M)); //Załaduj do programu cieniującego macierz modelu
-
-
-	glEnableVertexAttribArray(spTextured->a("vertex"));
-	glVertexAttribPointer(spTextured->a("vertex"), 4, GL_FLOAT, false, 0, myCubeVertices); //Współrzędne wierzchołków bierz z tablicy myCubeVertices
-
-	glEnableVertexAttribArray(spTextured->a("texCoord"));
-	glVertexAttribPointer(spTextured->a("texCoord"), 2, GL_FLOAT, false, 0, myCubeTexCoords); //Współrzędne teksturowania bierz z tablicy myCubeTexCoords
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	glUniform1i(spTextured->u("tex"), 0);
-
-	glDrawArrays(GL_TRIANGLES, 0, myCubeVertexCount);
-
-	glDisableVertexAttribArray(spTextured->a("vertex"));
-	glDisableVertexAttribArray(spTextured->a("color"));
-}
-
-
-
-
 
 //Procedura rysująca zawartość sceny
 void drawScene(GLFWwindow* window) {
@@ -572,8 +543,8 @@ int main(void)
 			angle_y += rotation_y;
 			angle_z += rotation_z;
 
-			if (plane_speed + acc > 5) {
-				plane_speed = 5;
+			if (plane_speed + acc > 10) {
+				plane_speed = 10;
 			}
 			else if (plane_speed + acc < 0) {
 				plane_speed = 0;
@@ -581,9 +552,16 @@ int main(void)
 			else {
 				plane_speed += acc;
 			}
-
+			plane->rotate(rotation_z, rotation_y, rotation_x);
+			plane->SetPos(plane->getPos() + 
+				glm::vec3(plane->tmpx.x, 0, plane->tmpx.z) * -plane_speed  +
+				glm::vec3(plane->tmpy.x, plane->tmpy.y , plane->tmpy.z) * -plane_speed 
+				//glm::vec3(0, plane->tmpy.y, 0) * -plane_speed 
+				//glm::vec3(plane->tmpz.x, plane->tmpz.y, plane->tmpz.z) * -plane_speed
+				);
 			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 5)); //ustawia kamere zgodnie ze speedem
 
+			plane->outPos();
 			/*
 			glm::vec3 init_plane = plane->getPos();
 			

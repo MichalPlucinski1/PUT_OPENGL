@@ -195,7 +195,7 @@ glm::mat4 PlaneModel::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, float ac
 	M = glm::rotate(M, rx, glm::vec3(1, 0, 0)); // rx
 	M = glm::rotate(M, ry, glm::vec3(0, 1, 0)); // ry
 	M = glm::rotate(M, rz, glm::vec3(0, 0, 1)); // rz
-	M = glm::translate(M, glm::vec3(-speed, 0, 0));
+	//M = glm::translate(M, glm::vec3(-speed, 0, 0));
 	M = glm::scale(M, glm::vec3(0.01, 0.01, 0.01));
 	
 	std::cout << speed << std::endl;
@@ -217,6 +217,6 @@ glm::mat4 PlaneModel::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, float ac
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glDrawArrays(GL_TRIANGLE_MESH_SUN, 0, vertices.size());
 	return M;
 }
