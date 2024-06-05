@@ -51,12 +51,41 @@ void Plane::outPos() {
 	std::cout << "x:" << pos.x << " y:" << pos.y << " z:" << pos.z << "\n";
 }
 
+void Plane::outRot() {
+	std::cout << "x:" << tmpx.x + tmpy.x + tmpz.x << " y:" << tmpz.y << " z:" << tmpz.z << "\n";
+}
+
 void Plane::rotate(float ax, float ay, float az) {
 	rx += ax;
 	ry += ay;
 	rz += az;
 	glm::mat4 M = glm::mat4(1.0f);
+
+	M = glm::rotate(M, ay, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec4 tmp = M * glm::vec4(tmpy, 0);
+	tmpx.x = tmp.x;
+	tmpx.y = tmp.y;
+	tmpx.z = tmp.z;
+
+
+	
+	M = glm::rotate(M, az, glm::vec3(0.0f, 1.0f, 0.0f));
+	tmp = M * glm::vec4(tmpx, 0);
+	tmpy.x = tmp.x;
+	tmpy.y = tmp.y;
+	tmpy.z = tmp.z;
+
+	M = glm::rotate(M, ax, glm::vec3(0.0f, 0.0f, 1.0f));
+	tmp = M * glm::vec4(tmpz, 0);
+	tmpz.x = tmp.x;
+	tmpz.y = tmp.y;
+	tmpz.z = tmp.z;
+
+	
+
+	/*
 	M = glm::rotate(M, ax, glm::vec3(0.0f, 1.0f, 0.0f));
+
 	glm::vec4 tmp = M * glm::vec4(tmpx, 0);
 	tmpx.x = tmp.x;
 	tmpx.y = tmp.y;
@@ -73,7 +102,7 @@ void Plane::rotate(float ax, float ay, float az) {
 	tmpz.y = tmp.y;
 	tmpz.z = tmp.z;
 	
-
+	*/
 
 }
 

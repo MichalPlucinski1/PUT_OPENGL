@@ -236,7 +236,7 @@ void key_callback(GLFWwindow* window,	int key,	int scancode,	int action,	int mod
 	if (action == GLFW_PRESS && kamera->getMode()) {
 
 		if (key == GLFW_KEY_LEFT_SHIFT) { //acc
-			acc = 0.02;
+			acc = 0.01;
 		}
 		if (key == GLFW_KEY_LEFT_CONTROL) { // slowing
 			acc = -0.08;
@@ -462,7 +462,7 @@ void drawScene(GLFWwindow* window) {
 	obstacleV2.draw(sp, P, V, grey, lamp1->getPos(), lamp2->getPos());
 	obstacleV3.draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
 
-	cout << "ACC:" << plane_speed << endl;
+	//cout << "ACC:" << plane_speed << endl;
 	plane->draw(sp, P, V, plane_speed, angle_x, angle_y, angle_z, red, lamp1->getPos(), lamp2->getPos());
 
 
@@ -552,16 +552,18 @@ int main(void)
 			else {
 				plane_speed += acc;
 			}
-			plane->rotate(rotation_z, rotation_y, rotation_x);
-			plane->SetPos(plane->getPos() + 
-				glm::vec3(plane->tmpx.x, 0, plane->tmpx.z) * -plane_speed  +
-				glm::vec3(plane->tmpy.x, plane->tmpy.y , plane->tmpy.z) * -plane_speed 
+			plane->rotate(rotation_x, rotation_y, rotation_z);
+			plane->SetPos(plane->getPos() 
+				//+ glm::vec3(plane->tmpx.x, plane->tmpx.y, plane->tmpx.z) * ( - plane_speed / 2) 
+				//+ glm::vec3(plane->tmpy.x, plane->tmpy.y, plane->tmpy.z) * (-plane_speed / 2)
+				+ glm::vec3(plane->tmpz.x, plane->tmpz.y, plane->tmpz.z) * (-plane_speed / 2)
+				
 				//glm::vec3(0, plane->tmpy.y, 0) * -plane_speed 
 				//glm::vec3(plane->tmpz.x, plane->tmpz.y, plane->tmpz.z) * -plane_speed
 				);
-			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 5)); //ustawia kamere zgodnie ze speedem
+			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
 
-			plane->outPos();
+			plane->outRot();
 			/*
 			glm::vec3 init_plane = plane->getPos();
 			

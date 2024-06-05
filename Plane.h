@@ -50,6 +50,7 @@ public:
 	void setAnimeAng(float a);
 	bool coll();
 	void outPos();
+	void outRot();
 
 };
 
