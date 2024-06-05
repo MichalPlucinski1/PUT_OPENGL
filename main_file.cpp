@@ -206,6 +206,63 @@ void error_callback(int error, const char* description) {
 	fputs(description, stderr);
 }
 
+
+void floorCollisionv2(Plane *p) {
+	glm::vec3 pos = p->getPos();
+	if (pos.y < 0) {
+		p->SetPos(glm::vec3(pos.x, 0, pos.z));
+
+	}
+
+}
+
+
+void obstacleCollisionv2(Camera* c, std::vector<Obstacle*> o) {
+	for (int i = 0; i < o.size(); i++){
+		cout << "test: " << o[i]->getPos().x << "   ";
+		auto pos = o[i]->getPos();
+		
+		bool collisionX = c->getPos().x < o[i]->getPos().x +5 - 4 &&
+			c->getPos().x > o[i]->getPos().x - 5 - 2;
+		// collision y-axis?
+		bool collisionY = c->getPos().y < 25;
+
+		bool collisionZ = c->getPos().z < o[i]->getPos().z + 5 &&
+			c->getPos().z > o[i]->getPos().z - 5;
+
+
+		if (collisionX && collisionZ && collisionY)
+		{
+			plane->SetPos(plane->getPos()
+				//+ glm::vec3(plane->tmpx.x, plane->tmpx.y, plane->tmpx.z) * ( - plane_speed / 2) 
+				//+ glm::vec3(plane->tmpy.x, plane->tmpy.y, plane->tmpy.z) * (-plane_speed / 2)
+				+ glm::vec3(plane->tmpz.x, plane->tmpz.y, plane->tmpz.z) * (plane_speed / 2));
+		}
+
+	}
+
+}
+
+void obstacleCollisionv3(Camera* c, std::vector<Obstacle*> o) {
+	for (int i = 0; i < o.size(); i++) {
+		cout << "test: " << o[i]->getPos().x << "   ";
+		auto pos = o[i]->getPos();
+
+		bool collisionX = c->getPos().x >= o[i]->getPos().x - 10 - 5 &&
+			c->getPos().x <= o[i]->getPos().x + 10 + -5;
+		// collision y-axis?
+		bool collisionY = c->getPos().y >= o[i]->getPos().y - 5 &&
+			c->getPos().y <= o[i]->getPos().y + 5;
+
+		bool collisionZ = c->getPos().z >= o[i]->getPos().z - 30.0 &&
+			c->getPos().z <= o[i]->getPos().z + 30.0;
+
+		if (collisionX)
+			cout << "colision\n";
+	}
+
+}
+
 void key_callback(GLFWwindow* window,	int key,	int scancode,	int action,	int mod) 
 {
 	if (action == GLFW_PRESS && !kamera->getMode()) {
@@ -389,19 +446,19 @@ void initOpenGLProgram(GLFWwindow* window) {
 	lamp2 = new Lamp(temp_vertices, temp_normals, temp_uvs, glm::vec3(15, 5, 20));
 
 
-	
-	loadOBJ("skyscrapers.obj", temp_vertices, temp_uvs, temp_normals);
-	obstacleV.set(temp_vertices, temp_normals, temp_uvs);
-	obstacleV.add(glm::vec3(-5, 1, 0), 0);
-	obstacleV.add(glm::vec3(10, 1, 10), 0);
-	obstacleV.add(glm::vec3(15, 1, -5), 0);
-
-	
 	loadOBJ("skyscrapers3.obj", temp_vertices, temp_uvs, temp_normals);
+
+	obstacleV.set(temp_vertices, temp_normals, temp_uvs);
+	obstacleV.add(glm::vec3(-10, 0, 5), 0);
+	obstacleV.add(glm::vec3(20, 0, 10), 0);
+	obstacleV.add(glm::vec3(40, 0, -5), 0);
+
+	loadOBJ("skyscrapers.obj", temp_vertices, temp_uvs, temp_normals);
+
 	obstacleV2.set(temp_vertices, temp_normals, temp_uvs);
-	obstacleV2.add(glm::vec3(-10, 1, 10), 0);
-	obstacleV2.add(glm::vec3(20, 1, 10), 0);
-	obstacleV2.add(glm::vec3(-5, 1, 15), 0);
+	obstacleV2.add(glm::vec3(-10, 0, 20), 0);
+	obstacleV2.add(glm::vec3(20, 0, 30), 0);
+	obstacleV2.add(glm::vec3(-5, 0, -15), 0);
 	/*
 	loadOBJ("47.obj", temp_vertices, temp_uvs, temp_normals);
 	obstacleV3.set(temp_vertices, temp_normals, temp_uvs);
@@ -463,7 +520,7 @@ void drawScene(GLFWwindow* window) {
 	obstacleV3.draw(sp, P, V, red, lamp1->getPos(), lamp2->getPos());
 
 	//cout << "ACC:" << plane_speed << endl;
-	plane->draw(sp, P, V, plane_speed, angle_x, angle_y, angle_z, red, lamp1->getPos(), lamp2->getPos());
+	plane->draw(sp, P, V, plane_speed, angle_x, angle_y, angle_z, texPlane, lamp1->getPos(), lamp2->getPos());
 
 
 
@@ -561,9 +618,15 @@ int main(void)
 				//glm::vec3(0, plane->tmpy.y, 0) * -plane_speed 
 				//glm::vec3(plane->tmpz.x, plane->tmpz.y, plane->tmpz.z) * -plane_speed
 				);
-			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
+			kamera->setPos(plane->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0) + glm::vec3(0, 1.5, 0)); //ustawia kamere zgodnie ze speedem
 
-			plane->outRot();
+			floorCollisionv2(plane);
+
+			//obstacleV.coll(kamera);
+			//obstacleV2.coll(kamera);
+			//obstacleV3.coll(kamera);
+			//plane->outRot();
+			
 			/*
 			glm::vec3 init_plane = plane->getPos();
 			
@@ -571,6 +634,7 @@ int main(void)
 			kamera->setPos(kamera->getPos() + glm::vec3(kamera->getKier().x, 0, kamera->getKier().z) * speed_y * (float)glfwGetTime() + kamera->getPrawo() * speed_m * (float)glfwGetTime() + glm::vec3(0, speed_z * glfwGetTime(), 0)); //ustawia kamere zgodnie ze speedem
 			*/
 		}
+		obstacleCollisionv2(kamera, obstacleV.getVec());
 
 		if (!kamera->getOnGround()) {
 			kamera->addForce(glm::vec3(0, -0.25, 0));
@@ -580,6 +644,8 @@ int main(void)
 		glfwSetTime(0); //Wyzeruj licznik czasu
 		drawScene(window); //Wykonaj procedurę rysującą
 		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
+
+		kamera->outPos();
 	}
 
 	freeOpenGLProgram(window);

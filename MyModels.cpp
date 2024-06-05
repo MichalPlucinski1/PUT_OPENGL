@@ -124,10 +124,11 @@ void Lamp::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex) {
 void Obstacle::draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex, glm::vec4 lp1, glm::vec4 lp2) {
 	sp->use();
 	glm::mat4 M = glm::mat4(1.0f);
-	M = glm::scale(M, glm::vec3(3.0, 3.0, 3.0));
+	
 
-	M = glm::translate(M, pos + glm::vec3(0, -1.9, 0));
+	M = glm::translate(M, pos + glm::vec3(0, -2, 0));
 	M = glm::rotate(M, PI / 2 + angle, glm::vec3(0, 1, 0));
+	M = glm::scale(M, glm::vec3(3.0, 3.0, 3.0));
 	glUniform4fv(sp->u("lp1"), 1, glm::value_ptr(lp1));
 	glUniform4fv(sp->u("lp2"), 1, glm::value_ptr(lp2));
 	glUniformMatrix4fv(sp->u("P"), 1, false, glm::value_ptr(P));

@@ -67,7 +67,7 @@ public:
 	void draw(ShaderProgram* sp, glm::mat4 P, glm::mat4 V, GLuint tex);
 };
 
-class Obstacle : public Model { // "przeszkody" docelowo wydmy czy cos w tym rodzaju
+class Obstacle : public Model { 
 private:
 	ObstacleCollision* coll;
 	float angle;
@@ -103,6 +103,7 @@ public:
 			cam->setPos(vector[i]->colli(cam->getPos()));
 		}
 	}
+	std::vector<Obstacle*> getVec() { return this->vector; }
 
 };
 

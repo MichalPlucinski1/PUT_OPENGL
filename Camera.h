@@ -3,6 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 
 //jakies potrzebne rzeczy do kamerki
@@ -49,5 +50,9 @@ public:
 	}
 	float getVert() {
 		return angvert;
+	}
+
+	void outPos() {
+		std::cout << "x:" << position.x << " y:" << position.y << " z:" << position.z << "\n";
 	}
 };
